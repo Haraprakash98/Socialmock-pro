@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp Generator Pro</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --wa-bg: #0b141a;
+            --header-bg: #010407; /* Your specific color */
+            --bubble-sent: #005c4b;
+            --bubble-received: #202c33;
+            --text-main: #e9edef;
+            --text-dim: #8696a0;
+            --wa-gold: #ffd279;
+            --wa-blue: #53bdeb;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+
+        body {
+            background-color: #121212;
+            color: white;
+            display: flex;
+            padding: 20px;
+            gap: 20px;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        /* --- CONTROL PANEL --- */
+        .controls {
+            width: 350px;
+            background: #1e1e1e;
+            padding: 20px;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            border: 1px solid #333;
+            max-height: 95vh;
+            overflow-y: auto;
+        }
+        .controls h3 { color: #00a884; font-size: 18px; margin-bottom: 5px; }
+        label { font-size: 11px; color: #888; text-transform: uppercase; font-weight: bold; margin-top: 5px;}
+        input, textarea, select, button { padding: 10px; border-radius: 6px; border: none; font-size: 14px; }
+        input, textarea, select { background: #2a2a2a; color: white; border: 1px solid #444; width: 100%; }
+        button { cursor: pointer; font-weight: bold; transition: 0.2s; }
+        
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+        .btn-send { background: #005c4b; color: white; flex: 1; }
+        .btn-receive { background: #343f46; color: white; flex: 1; }
+        .btn-date { background: #5a38a7; color: white; flex: 1; font-size: 12px; }
+        .btn-download { background: #00a884; color: black; font-size: 16px; margin-top: 10px; }
+        .btn-toggle { background: #cc9933; color: black; font-size: 12px; padding: 8px; }
+
+        /* --- THE CAPTURE AREA --- */
+        #capture-area {
+            width: 380px;
+            height: 750px;
+            background: var(--wa-bg);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            box-shadow: 0 0 40px rgba(0,0,0,0.7);
+        }
+
+        /* HEADER: STRICT SINGLE ROW */
+        .header {
+            height: 64px;
+            background: var(--header-bg);
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            flex-shrink: 0;
+            z-index: 10;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+        }
+
+        .back-arrow { width: 24px; height: 24px; fill: var(--text-main); }
+        
+        .profile-pic {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #555;
+            object-fit: cover;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .header-name {
+            font-size: 17.5px;
+            font-weight: 500;
+            color: var(--text-main);
+            white-space: nowrap;
+        }
+
+        .header-icons {
+            display: flex;
+            gap: 22px;
+            align-items: center;
+            margin-left: auto;
+            padding-right: 5px;
+        }
+        .header-icons svg { fill: var(--text-main); width: 22px; height: 22px; }
+
+        /* CHAT BODY */
+        .chat-body {
+            flex: 1;
+            padding: 10px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            overflow-y: auto;
+            background-image: url('chat_bg.png');
+            background-size: cover;
+            background-position: center;
+        }
+        .chat-body::-webkit-scrollbar { display: none; }
+
+        /* Centered Elements */
+        .centered-container { display: flex; justify-content: center; margin: 8px 0; width: 100%; }
+        .date-bubble {
+            background: #121b22;
+            color: var(--text-dim);
+            font-size: 12px;
+            padding: 5px 12px;
+            border-radius: 8px;
+            box-shadow: 0 1px 0.5px rgba(0,0,0,0.13);
+        }
+
+        .enc-notice {
+            background: #182229;
+            color: var(--wa-gold);
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 12.5px;
+            text-align: center;
+            line-height: 1.4;
+            max-width: 95%;
+        }
+        .enc-notice span { color: var(--wa-blue); }
+
+        /* --- BUBBLE VISUAL RECTIFICATION --- */
+        .bubble-row { display: flex; width: 100%; margin-bottom: 2px; position: relative; }
+        .bubble-row.sent { justify-content: flex-end; }
+        .bubble-row.received { justify-content: flex-start; }
+
+        .bubble {
+            max-width: 85%;
+            padding: 6px 7px 8px 9px;
+            font-size: 14.8px;
+            line-height: 1.4;
+            position: relative;
+            color: var(--text-main);
+            word-wrap: break-word;
+            box-shadow: 0 1px 0.5px rgba(0,0,0,0.13);
+        }
+
+        .received .bubble {
+            background: var(--bubble-received);
+            border-radius: 0 10px 10px 10px;
+        }
+        .received .bubble::before {
+            content: ""; position: absolute; top: 0; left: -8px; width: 12px; height: 15px;
+            background-color: var(--bubble-received); clip-path: polygon(100% 0, 100% 100%, 0 0);
+        }
+
+        .sent .bubble {
+            background: var(--bubble-sent);
+            border-radius: 10px 0 10px 10px;
+        }
+        .sent .bubble::before {
+            content: ""; position: absolute; top: 0; right: -8px; width: 12px; height: 15px;
+            background-color: var(--bubble-sent); clip-path: polygon(0 0, 0 100%, 100% 0);
+        }
+        
+        .bubble-footer {
+            display: inline-flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 4px;
+            float: right;
+            margin-top: 4px;
+            margin-left: 10px;
+            font-size: 11px;
+            color: rgba(255,255,255,0.55);
+            height: 15px;
+        }
+
+        .tick-svg { width: 16px; height: 16px; }
+
+        /* Footer */
+        .footer-img { width: 100%; display: block; flex-shrink: 0; }
+
+        @media (max-width: 750px) { body { flex-direction: column; align-items: center; } }
+    </style>
+</head>
+<body>
+
+    <div class="controls">
+        <h3>Builder</h3>
+        
+        <label>Identity</label>
+        <input type="text" id="nameIn" value="NAME" oninput="updateHeader()">
+        <input type="file" accept="image/*" onchange="updatePhoto(this)">
+        
+        <label>Date Section</label>
+        <div class="btn-row">
+            <button class="btn-date" onclick="addDate('Yesterday')">Yesterday</button>
+            <button class="btn-date" onclick="addDate('Today')">Today</button>
+            <button class="btn-date" onclick="addDate('Tomorrow')">Tomorrow</button>
+        </div>
+        <input type="text" id="customDate" placeholder="Custom Date (e.g. March 15, 2026)" style="margin-top:5px;">
+        <button class="btn-date" onclick="addDate(document.getElementById('customDate').value)" style="width:100%; margin-top:5px;">Add Custom Date</button>
+
+        <label>Encryption</label>
+        <button class="btn-toggle" onclick="toggleEnc()">Add / Remove Notice</button>
+
+        <hr style="border:0; border-top:1px solid #333;">
+        
+        <label>Add Message</label>
+        <textarea id="msgIn" placeholder="Type here..."></textarea>
+        
+        <div class="btn-row">
+            <div style="flex:1">
+                <label>Time</label>
+                <input type="text" id="timeIn" placeholder="11:04 PM">
+            </div>
+            <div style="flex:1">
+                <label>Tick Status</label>
+                <select id="tickIn">
+                    <option value="single">Single Tick</option>
+                    <option value="double">Double Gray</option>
+                    <option value="blue" selected>Double Blue</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="btn-row">
+            <button class="btn-receive" onclick="addMsg('received')">Left (Receiver)</button>
+            <button class="btn-send" onclick="addMsg('sent')">Right (Sender)</button>
+        </div>
+
+        <button class="btn-download" id="dlBtn" onclick="doDownload()">📸 Download PNG</button>
+        <button style="background:transparent; color:#888; font-size:11px; margin-top:10px" onclick="location.reload()">Clear All</button>
+    </div>
+
+    <div id="capture-area">
+        <div class="header">
+            <div class="header-left">
+                <svg class="back-arrow" viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+                <img id="disp-pic" class="profile-pic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=">
+                <span id="disp-name" class="header-name">NAME</span>
+            </div>
+            <div class="header-icons">
+                <svg viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c1.1 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
+                <svg viewBox="0 0 24 24"><path d="M20 15.5c-1.25 0-2.45-.2-3.57-.57a1.02 1.02 0 0 0-1.01.24l-2.2 2.2a15.05 15.05 0 0 1-6.59-6.59l2.2-2.21a.96.96 0 0 0 .25-1.01A11.36 11.36 0 0 1 8.5 4c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1 0 9.39 7.61 17 17 17 .55 0 1-.45 1-1v-3.5c0-.55-.45-1-1-1z"/></svg>
+                <svg viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+            </div>
+        </div>
+
+        <div class="chat-body" id="chat-flow">
+            <div class="centered-container" id="enc-tag">
+                <div class="enc-notice">
+                    <svg viewBox="0 0 24 24" width="10" height="10" style="fill:var(--wa-gold); margin-bottom:-1px; margin-right:3px;"><path d="M12 2C9.24 2 7 4.24 7 7v3H6c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-8c0-1.1-.9-2-2-2h-1V7c0-2.76-2.24-5-5-5zm-3 5c0-1.66 1.34-3 3-3s3 1.34 3 3v3H9V7z"/></svg>
+                    Messages and calls are end-to-end encrypted. Only people in this chat can read, listen to, or share them. <span>Learn more.</span>
+                </div>
+            </div>
+        </div>
+
+        <img src="input_bar.png" class="footer-img" onerror="this.style.display='none'">
+    </div>
+
+    <script>
+        function updateHeader() { document.getElementById('disp-name').innerText = document.getElementById('nameIn').value || "Name"; }
+        function updatePhoto(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (e) => document.getElementById('disp-pic').src = e.target.result;
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+        function toggleEnc() {
+            const tag = document.getElementById('enc-tag');
+            tag.style.display = tag.style.display === 'none' ? 'flex' : 'none';
+        }
+        function addDate(val) {
+            if(!val) return;
+            const div = document.createElement('div');
+            div.className = 'centered-container';
+            div.innerHTML = `<div class="date-bubble">${val}</div>`;
+            document.getElementById('chat-flow').appendChild(div);
+        }
+        function getTickSVG(type) {
+            if (type === 'single') return `<svg width="16" height="16" viewBox="0 0 24 24" style="fill:rgba(255,255,255,0.5)"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>`;
+            if (type === 'double') return `<svg width="16" height="16" viewBox="0 0 24 24" style="fill:rgba(255,255,255,0.5)"><path d="M0 12.17L1.41 10.76l4.59 4.59L17.17 4 18.58 5.41 6 18zM11 18l10-10-1.41-1.41L11 15.17l-3.3-3.3L6.29 13.29z"/></svg>`;
+            return `<svg width="16" height="16" viewBox="0 0 24 24" style="fill:var(--wa-blue)"><path d="M0 12.17L1.41 10.76l4.59 4.59L17.17 4 18.58 5.41 6 18zM11 18l10-10-1.41-1.41L11 15.17l-3.3-3.3L6.29 13.29z"/></svg>`;
+        }
+        function addMsg(side) {
+            const text = document.getElementById('msgIn').value;
+            if(!text) return;
+            const time = document.getElementById('timeIn').value || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const tick = side === 'sent' ? getTickSVG(document.getElementById('tickIn').value) : '';
+            const row = document.createElement('div');
+            row.className = `bubble-row ${side}`;
+            row.innerHTML = `<div class="bubble">${text}<div class="bubble-footer">${time} ${tick}</div></div>`;
+            document.getElementById('chat-flow').appendChild(row);
+            document.getElementById('msgIn').value = "";
+            document.getElementById('chat-flow').scrollTop = document.getElementById('chat-flow').scrollHeight;
+        }
+
+        async function doDownload() {
+            const area = document.getElementById('capture-area');
+            const btn = document.getElementById('dlBtn');
+            btn.innerText = "Processing...";
+            try {
+                const canvas = await html2canvas(area, {
+                    scale: 3, 
+                    useCORS: true, 
+                    backgroundColor: "#0b141a",
+                    allowTaint: true
+                });
+                const link = document.createElement('a');
+                link.download = `WhatsApp-Chat-${Date.now()}.png`;
+                link.href = canvas.toDataURL("image/png");
+                link.click();
+                btn.innerText = "📸 Download PNG";
+            } catch (err) {
+                alert("Security Error: To make the download button work, you MUST run this file from a local server (like Live Server) or upload it to a host.");
+                btn.innerText = "Error - Try again";
+            }
+        }
+    </script>
+</body>
+</html>

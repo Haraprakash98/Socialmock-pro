@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Instagram Pro Mockup | SocialMock</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --ig-black: #000000;
+            --ig-border: #262626;
+            --ig-light-gray: #a8a8a8;
+            --ig-blue-msg: #3797f0;
+            --ig-cam-blue: #3797f0;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        body { background: #121212; color: white; display: flex; flex-direction: column; align-items: center; padding: 10px; }
+
+        /* --- CONTROL PANEL --- */
+        .controls { 
+            width: 100%; max-width: 380px; background: #1e1e1e; padding: 15px; 
+            border-radius: 12px; margin-bottom: 20px; display: flex; 
+            flex-direction: column; gap: 10px; border: 1px solid #333;
+        }
+        .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; }
+        input, textarea, button, select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #333; background: #2a2a2a; color: white; font-size: 14px; outline: none; }
+        .btn-blue { background: var(--ig-cam-blue); border: none; font-weight: 700; cursor: pointer; }
+        .btn-gray { background: #333; border: none; font-weight: 600; cursor: pointer; }
+        .btn-undo { background: #442222; color: #ff6666; border: 1px solid #663333; font-weight: 600; cursor: pointer; }
+
+        /* --- THE INTERFACE --- */
+        #capture-area {
+            width: 380px; height: 800px; background: var(--ig-black);
+            display: flex; flex-direction: column; position: relative; overflow: hidden;
+        }
+
+        .header { height: 60px; display: flex; align-items: center; padding: 0 16px; justify-content: space-between; border-bottom: 0.5px solid var(--ig-border); flex-shrink: 0; }
+        .header-left { display: flex; align-items: center; gap: 14px; }
+        .header-pfp { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; background: #262626; }
+        .h-name { font-size: 16px; font-weight: 700; letter-spacing: -0.2px; }
+
+        .chat-body { flex: 1; padding: 0 14px; display: flex; flex-direction: column; overflow-y: auto; }
+        
+        .profile-section { display: flex; flex-direction: column; align-items: center; padding: 40px 0 20px; text-align: center; flex-shrink: 0; }
+        .large-pfp { width: 96px; height: 96px; border-radius: 50%; object-fit: cover; margin-bottom: 16px; background: #262626; }
+        .p-name { font-size: 20px; font-weight: 700; margin-bottom: 2px; }
+        .p-handle { font-size: 14px; margin-bottom: 12px; }
+        .p-stats { font-size: 13px; color: var(--ig-light-gray); margin-bottom: 4px; }
+        .p-follow-status { font-size: 13px; color: var(--ig-light-gray); margin-bottom: 16px; }
+        .view-btn { background: #262626; padding: 6px 16px; border-radius: 8px; font-size: 14px; font-weight: 600; color: white; border: none; }
+
+        .bubble-row { display: flex; width: 100%; margin-bottom: 8px; align-items: flex-end; }
+        .sent { justify-content: flex-end; }
+        .received { justify-content: flex-start; gap: 8px; }
+        .bubble-pfp { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; flex-shrink: 0; background: #262626; }
+        .bubble { max-width: 72%; padding: 10px 16px; border-radius: 22px; font-size: 15px; line-height: 1.4; word-wrap: break-word; }
+        .received .bubble { background: #262626; color: white; border-bottom-left-radius: 4px; }
+        .sent .bubble { background: var(--ig-blue-msg); color: white; border-bottom-right-radius: 4px; }
+
+        /* Footer */
+        .footer { height: 80px; display: flex; align-items: center; padding: 0 12px; gap: 10px; background: var(--ig-black); flex-shrink: 0; }
+        .cam-btn-circle { width: 40px; height: 40px; border-radius: 50%; background: var(--ig-cam-blue); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .input-pill { flex: 1; height: 44px; background: var(--ig-black); border: 1px solid #363636; border-radius: 24px; display: flex; align-items: center; padding: 0 14px; color: var(--ig-light-gray); font-size: 15px; }
+        .pill-icons { display: flex; gap: 16px; align-items: center; }
+        .pill-icons svg { fill: none; stroke: white; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; width: 22px; height: 22px; }
+    </style>
+</head>
+<body>
+
+    <div class="controls">
+        <div class="input-row">
+            <input type="text" id="nameIn" value="" placeholder="Display Name" oninput="updateUI()">
+            <input type="text" id="handleIn" value="" placeholder="Username" oninput="updateUI()">
+        </div>
+        <div class="input-row">
+            <input type="number" id="folIn" value="0" placeholder="Followers" oninput="updateUI()">
+            <input type="number" id="postIn" value="0" placeholder="Posts" oninput="updateUI()">
+        </div>
+        <select id="followIn" onchange="updateUI()">
+            <option value="Follows you">Follows you</option>
+            <option value="">Not following</option>
+        </select>
+        <input type="file" id="fileIn" accept="image/*" onchange="loadPfp(this)">
+        <textarea id="msgIn" placeholder="Type a message..." rows="2"></textarea>
+        
+        <div class="input-row">
+            <button class="btn-gray" onclick="addM('received')">Receive</button>
+            <button class="btn-blue" onclick="addM('sent')">Send</button>
+        </div>
+        
+        <button class="btn-undo" onclick="undoM()">✖ Remove Last Message</button>
+        <button class="btn-blue" style="background:#d62976" onclick="save()" id="dlBtn">📸 Export High-Res PNG</button>
+    </div>
+
+    <div id="capture-area">
+        <div class="header">
+            <div class="header-left">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M21 11H6.83l3.58-3.59L9 6l-6 6 6 6 1.41-1.41L6.83 13H21v-2z"/></svg>
+                <img id="pfp-h" class="header-pfp" src="https://via.placeholder.com/150/262626/FFFFFF?text=User">
+                <div class="header-info"><span id="disp-name-h" class="h-name">Name</span></div>
+            </div>
+            <div style="display:flex; gap:22px">
+                <svg width="26" height="26" fill="white" viewBox="0 0 24 24"><path d="M6.62 10.79a15.05 15.05 0 006.59 6.59l2.2-2.2a1 1 0 011.11-.27c1.12.45 2.33.69 3.58.69a1 1 0 011 1V20a1 1 0 01-1 1A17 17 0 014 4a1 1 0 011-1h3.5a1 1 0 011 1c0 1.25.24 2.46.69 3.58a1 1 0 01-.27 1.11z"/></svg>
+                <svg width="26" height="26" fill="white" viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c1.1 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
+            </div>
+        </div>
+
+        <div class="chat-body" id="flow">
+            <div class="profile-section">
+                <img id="pfp-l" class="large-pfp" src="https://via.placeholder.com/150/262626/FFFFFF?text=User">
+                <div id="disp-name-l" class="p-name">Name</div>
+                <div id="disp-handle-l" class="p-handle">username</div>
+                <div id="disp-stats-l" class="p-stats">0 followers · 0 posts</div>
+                <div id="disp-follow-l" class="p-follow-status">Follows you</div>
+                <div class="view-btn">View Profile</div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <div class="cam-btn-circle">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="white">
+                    <path d="M12 9.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zm0-1.5a4 4 0 1 1 0 8 4 4 0 0 1 0-8z"/>
+                    <path d="M17.5 7H15.8l-.8-1.5c-.2-.4-.6-.5-1-.5h-4c-.4 0-.8.1-1 .5l-.8 1.5H6.5C5.1 7 4 8.1 4 9.5v8c0 1.4 1.1 2.5 2.5 2.5h11c1.4 0 2.5-1.1 2.5-2.5v-8c0-1.4-1.1-2.5-2.5-2.5zM12 18c-2.8 0-5-2.2-5-5s2.2-5 5-5 5 2.2 5 5-2.2 5-5 5z"/>
+                </svg>
+            </div>
+            <div class="input-pill">
+                <span style="flex:1">Message...</span>
+                <div class="pill-icons">
+                    <svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>
+                    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                    <svg viewBox="0 0 24 24"><path d="M21 14l-7 7H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v9z"/><circle cx="8.5" cy="9.5" r="1" fill="white" stroke="none"/><circle cx="15.5" cy="9.5" r="1" fill="white" stroke="none"/><path d="M8 15s1.5 2 4 2 4-2 4-2"/></svg>
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentUserImg = "https://via.placeholder.com/150/262626/FFFFFF?text=User";
+
+        function updateUI() {
+            const name = document.getElementById('nameIn').value || "Name";
+            const handle = document.getElementById('handleIn').value || "username";
+            const fols = document.getElementById('folIn').value || "0";
+            const posts = document.getElementById('postIn').value || "0";
+            
+            document.getElementById('disp-name-h').innerText = name;
+            document.getElementById('disp-name-l').innerText = name;
+            document.getElementById('disp-handle-l').innerText = handle;
+            document.getElementById('disp-follow-l').innerText = document.getElementById('followIn').value;
+            document.getElementById('disp-stats-l').innerText = `${fols} followers · ${posts} posts`;
+        }
+
+        function loadPfp(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    currentUserImg = e.target.result;
+                    document.getElementById('pfp-h').src = currentUserImg;
+                    document.getElementById('pfp-l').src = currentUserImg;
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function addM(type) {
+            const txt = document.getElementById('msgIn').value;
+            if(!txt) return;
+            const row = document.createElement('div');
+            row.className = `bubble-row ${type}`;
+            row.innerHTML = (type === 'received') ? `<img class="bubble-pfp" src="${currentUserImg}"><div class="bubble">${txt}</div>` : `<div class="bubble">${txt}</div>`;
+            document.getElementById('flow').appendChild(row);
+            document.getElementById('msgIn').value = "";
+            document.getElementById('flow').scrollTop = 99999;
+        }
+
+        function undoM() {
+            const flow = document.getElementById('flow');
+            const messages = flow.getElementsByClassName('bubble-row');
+            if (messages.length > 0) {
+                messages[messages.length - 1].remove();
+            }
+        }
+
+        async function save() {
+            const btn = document.getElementById('dlBtn');
+            btn.innerText = "Processing...";
+            const canvas = await html2canvas(document.getElementById('capture-area'), { scale: 3, backgroundColor: "#000" });
+            const link = document.createElement('a');
+            link.download = `Instagram-Pro-Mockup.png`;
+            link.href = canvas.toDataURL("image/png");
+            link.click();
+            btn.innerText = "📸 Export High-Res PNG";
+        }
+    </script>
+</body>
+</html>

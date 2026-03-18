@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SocialMock Pro | UI/UX Chat Generator & Mockup Tool</title>
+    <meta name="description" content="A professional design tool for creating chat mockups for UI/UX projects. This is a prank/generator tool. No data is collected.">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+
+        :root {
+            --bg-obsidian: #050505;
+            --bg-slate: #0f1115;
+            --wa-green: #25d366;
+            --ig-blue: #0095f6;
+            --text-ghost: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-glow: rgba(255, 255, 255, 0.08);
+            --safety-orange: #ff9800;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background-color: var(--bg-obsidian); color: var(--text-ghost); line-height: 1.6; overflow-x: hidden; }
+
+        /* --- 1. THE CRITICAL SAFETY BANNER (For Google Bots) --- */
+        .safety-banner {
+            background: rgba(255, 152, 0, 0.1);
+            color: var(--safety-orange);
+            text-align: center;
+            padding: 12px 20px;
+            font-size: 13px;
+            font-weight: 600;
+            border-bottom: 1px solid rgba(255, 152, 0, 0.2);
+            position: sticky; top: 0; z-index: 2000;
+            backdrop-filter: blur(10px);
+        }
+
+        /* --- NAVIGATION --- */
+        nav {
+            width: 100%; height: 80px;
+            background: rgba(5, 5, 5, 0.7); backdrop-filter: blur(20px);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 10%; z-index: 1000; border-bottom: 1px solid var(--border-glow);
+        }
+        .logo { font-size: 20px; font-weight: 800; color: #fff; text-decoration: none; letter-spacing: -1px; }
+        .logo span { color: var(--wa-green); }
+
+        /* --- HERO SECTION --- */
+        header {
+            padding: 100px 20px 80px; text-align: center;
+            background: radial-gradient(circle at 50% -20%, #1e293b 0%, #050505 60%);
+        }
+        .badge {
+            display: inline-block; padding: 8px 18px; background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border-glow); border-radius: 100px;
+            font-size: 11px; font-weight: 800; color: var(--wa-green); margin-bottom: 25px; letter-spacing: 1px;
+        }
+        header h1 { font-size: clamp(32px, 8vw, 64px); font-weight: 800; letter-spacing: -2px; margin-bottom: 25px; line-height: 1.1; }
+        header p { color: var(--text-muted); max-width: 700px; margin: 0 auto; font-size: 18px; }
+
+        /* --- TOOL CARDS --- */
+        .container { max-width: 1100px; margin: 0 auto; padding: 60px 20px; }
+        .tool-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; }
+        
+        .card {
+            background: var(--bg-slate); border-radius: 28px; padding: 40px;
+            border: 1px solid var(--border-glow); text-decoration: none; color: inherit;
+            transition: 0.4s cubic-bezier(0.2, 1, 0.3, 1); position: relative;
+        }
+        .card:hover { transform: translateY(-10px); border-color: rgba(255,255,255,0.2); }
+        .card h2 { font-size: 24px; font-weight: 800; margin-bottom: 15px; }
+        .card p { color: var(--text-muted); font-size: 15px; margin-bottom: 30px; }
+        
+        .cta-btn { 
+            width: 100%; padding: 14px; border-radius: 12px; font-weight: 800; 
+            font-size: 14px; text-align: center; background: var(--wa-green); color: #000;
+        }
+
+        /* --- FOOTER --- */
+        footer { padding: 80px 20px 40px; border-top: 1px solid var(--border-glow); text-align: center; }
+        .disclaimer-box { max-width: 700px; margin: 0 auto 40px; color: #444; font-size: 12px; line-height: 1.8; }
+        .foot-links a { color: var(--text-muted); text-decoration: none; font-size: 13px; margin: 0 15px; transition: 0.3s; }
+        .foot-links a:hover { color: #fff; }
+    </style>
+</head>
+<body>
+
+    <div class="safety-banner">
+        ⚠️ SECURITY NOTICE: This is a Design Mockup Tool. We NEVER ask for passwords. Do not enter real credentials.
+    </div>
+
+    <nav>
+        <a href="index.html" class="logo">SOCIALMOCK<span>PRO</span></a>
+        <div class="foot-links">
+            <a href="chat.html">WhatsApp</a>
+            <a href="instagram.html">Instagram</a>
+        </div>
+    </nav>
+
+    <header>
+        <div class="badge">SECURE MOCKUP GENERATOR</div>
+        <h1>The Professional<br>Design Suite.</h1>
+        <p>A specialized utility for creating high-fidelity chat mockups for UI/UX presentations and content creation.</p>
+    </header>
+
+    <div class="container">
+        <div class="tool-grid">
+            <a href="chat.html" class="card">
+                <h2>WhatsApp Generator</h2>
+                <p>Create clean, high-resolution chat visualizations for your design projects. Watermark-free.</p>
+                <div class="cta-btn">Open Generator &rarr;</div>
+            </a>
+
+            <a href="instagram.html" class="card">
+                <h2>Instagram Mockup</h2>
+                <p>Professional wireframe UI clones for content creators and brand marketing presentations.</p>
+                <div class="cta-btn" style="background: var(--ig-blue); color: #fff;">Open Generator &rarr;</div>
+            </a>
+        </div>
+    </div>
+
+    <footer>
+        <div class="disclaimer-box">
+            <strong>LEGAL & SAFETY DISCLAIMER:</strong> SocialMock Pro is a creative tool designed for UI/UX designers, developers, and content creators to generate visual representations of social media interfaces. This site is NOT affiliated with WhatsApp, Instagram, or Meta. We do not provide login services, we do not store data, and we do not collect personal passwords. This is a static image generator for creative purposes only.
+        </div>
+        <div class="foot-links">
+            <a href="index.html">Home</a>
+            <a href="privacy.html">Privacy Policy</a>
+            <a href="privacy.html">Terms of Service</a>
+        </div>
+        <p style="font-size: 11px; color: #333; margin-top: 40px;">© 2026 SOCIALMOCK PRO • CREATIVE UTILITY ONLY</p>
+    </footer>
+
+</body>
+</html>
